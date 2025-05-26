@@ -1,0 +1,633 @@
+<!DOCTYPE html>
+<html lang="en" >
+<head>
+  <meta charset="UTF-8">
+  <title>ミニバスクイズ</title>
+  
+
+</head>
+<body>
+<!-- partial:index.partial.html -->
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>ミニバス クイズゲーム</title>
+    <style>
+        body {
+            font-family: 'Arial', 'Hiragino Sans', 'ヒラギノ角ゴシック', Meiryo, 'メイリオ', sans-serif;
+            background-color: #FFF3E0; 
+            color: #4E342E;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding-top: 20px; 
+            min-height: 100vh;
+            margin: 0;
+            box-sizing: border-box;
+            text-align: center;
+        }
+
+        #quiz-container {
+            background-color: #FFFFFF;
+            padding: 20px 25px;
+            border-radius: 25px;
+            width: 100%;
+            max-width: 380px;
+            margin-top: 10px; 
+            margin-bottom: 20px;
+            min-height: 520px; 
+            display: flex; 
+            flex-direction: column; 
+        }
+
+        h1 { 
+            color: #D84315; 
+            margin-top: 0; 
+            margin-bottom: 10px; 
+            font-size: 1.8em;   
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold; 
+        }
+
+        #title-basketball-image { 
+            height: 1.4em;  
+            width: auto;
+            margin-left: 10px; 
+            display: inline-block; /* JSでの表示/非表示制御のため */
+        }
+
+        /* --- スタート画面のスタイル --- */
+        #start-screen {
+            display: flex; 
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            flex-grow: 1; 
+            padding: 20px 0; 
+            background-color: transparent; /* ★★★ 背景を透明にしてシンプルに ★★★ */
+        }
+        #start-screen-image { 
+            width: 50%; 
+            max-width: 170px; /* 少し調整 */
+            height: auto;
+            margin-bottom: 25px;
+            animation: bounceStartImage 2.2s infinite alternate ease-in-out;
+        }
+        @keyframes bounceStartImage {
+            0% { transform: translateY(0) scale(1); }
+            50% { transform: translateY(-10px) scale(1.05); }
+            100% { transform: translateY(0) scale(1); }
+        }
+        #start-screen p {
+            font-size: 1.15em; 
+            color: #5D4037;
+            margin-bottom: 35px; /* ボタンとの間隔を少し調整 */
+            line-height: 1.65;
+            padding: 0 10px; 
+        }
+        #start-button {
+            background: linear-gradient(145deg, #FFB74D, #FF9800); 
+            color: white;
+            border: none;
+            padding: 16px 32px; 
+            border-radius: 30px; 
+            font-size: 1.3em;  
+            font-weight: bold;
+            cursor: pointer;
+            transition: background 0.3s, transform 0.15s, box-shadow 0.3s;
+            box-shadow: 0 5px 10px rgba(0,0,0,0.18);
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.2); 
+        }
+        #start-button:hover {
+            background: linear-gradient(145deg, #FFA726, #FB8C00);
+            transform: translateY(-3px) scale(1.03);
+            box-shadow: 0 7px 14px rgba(0,0,0,0.22); 
+        }
+        #start-button:active {
+            transform: translateY(0px) scale(1);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.15); 
+        }
+        /* --- スタート画面のスタイルここまで --- */
+
+
+        /* --- クイズコンテンツのラッパー --- */
+        #game-content-wrapper {
+            display: none; 
+            flex-direction: column;
+            flex-grow: 1;
+        }
+
+        #question-number {
+            font-size: 0.9em;
+            color: #795548;
+            margin-top: 10px; 
+            margin-bottom: 8px; 
+        }
+
+        #question {
+            font-size: 1.3em;
+            margin-bottom: 20px; 
+            min-height: 70px; 
+            line-height: 1.55;
+            color: #3E2723;
+        }
+        
+        .options {
+            margin-bottom: 15px; 
+        }
+
+        .options button {
+            display: block;
+            width: 100%;
+            background-color: #FFA726;
+            color: white;
+            border: none;
+            padding: 15px; 
+            margin-bottom: 10px; 
+            border-radius: 12px;
+            font-size: 1.1em;
+            cursor: pointer;
+            transition: background-color 0.2s, transform 0.1s;
+            box-shadow: 0 3px 7px rgba(0,0,0,0.12);
+        }
+
+        .options button:hover:not(:disabled) {
+            background-color: #FB8C00;
+            transform: translateY(-2px);
+        }
+        .options button:active:not(:disabled) {
+            transform: translateY(0px);
+        }
+
+        .options button:disabled {
+            cursor: not-allowed;
+            opacity: 0.6;
+        }
+
+        #feedback {
+            margin-top: 15px; 
+            font-size: 1.2em; 
+            font-weight: bold;
+            min-height: 45px; 
+            line-height: 1.4;
+            color: #E65100;
+        }
+
+        @keyframes bounceFeedback {
+            0%, 20%, 50%, 80%, 100% {transform: translateY(0);}
+            40% {transform: translateY(-10px);}
+            60% {transform: translateY(-5px);}
+        }
+        .feedback-correct-animation {
+            animation: bounceFeedback 0.8s ease;
+            color: #2E7D32 !important;
+        }
+        .feedback-positive-incorrect {
+            color: #1565C0 !important; 
+        }
+
+
+        #explanation {
+            margin-top: 10px; 
+            font-size: 1em;
+            color: #5D4037;
+            background-color: #FFECB3;
+            padding: 12px; 
+            border-radius: 10px;
+            line-height: 1.6; 
+            display: none;
+            text-align: left;
+            border: 1px solid #FFE082;
+            max-height: 120px; 
+            overflow-y: auto;  
+        }
+        #explanation strong {
+            color: #D84315;
+        }
+
+        #controls-area { 
+            display: none; 
+            justify-content: flex-end;
+            align-items: center;
+            margin-top: auto; 
+            padding-top: 15px; 
+            min-height: 40px; 
+        }
+
+        #next-question {
+            background-color: #F57C00;
+            color: white;
+            border: none;
+            padding: 10px 20px; 
+            border-radius: 10px;
+            font-size: 1.05em;
+            cursor: pointer;
+            transition: background-color 0.2s, transform 0.1s;
+            box-shadow: 0 3px 7px rgba(0,0,0,0.12);
+        }
+        #next-question:hover {
+            background-color: #E65100;
+            transform: translateY(-1px);
+        }
+
+        /* --- 結果表示画面のスタイル --- */
+        #score-container {
+            display: none; 
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            flex-grow: 1; 
+            padding: 15px;    
+        }
+        
+        #score-display {
+            font-size: 1.4em; 
+            font-weight: bold;
+            margin-bottom: 8px; 
+            color: #4E342E;
+            white-space: nowrap; 
+            overflow: hidden;     
+            text-overflow: ellipsis; 
+        }
+        .score-actual {
+            font-size: 2em; 
+            color: #E65100; 
+            font-weight: bolder;
+            display: inline-block; 
+            animation: scoreBounce 0.5s ease-out;
+        }
+        @keyframes scoreBounce { 
+            0% { transform: scale(0.8); opacity: 0; }
+            60% { transform: scale(1.1); }
+            100% { transform: scale(1); opacity: 1; }
+        }
+
+        #score-icons {
+            font-size: 2.5em; 
+            margin-top: 8px;  
+            margin-bottom: 15px; 
+            line-height: 1.3; 
+            min-height: 45px; 
+        }
+        .basketball-icon {
+            margin: 0 3px; 
+            display: inline-block;
+            animation: iconPopIn 0.3s ease-out forwards;
+            opacity: 0;
+        }
+        .basketball-icon:nth-child(1) { animation-delay: 0.2s; }
+        .basketball-icon:nth-child(2) { animation-delay: 0.4s; }
+        .basketball-icon:nth-child(3) { animation-delay: 0.6s; }
+        .basketball-icon:nth-child(4) { animation-delay: 0.8s; }
+        .basketball-icon:nth-child(5) { animation-delay: 1.0s; }
+
+        @keyframes iconPopIn {
+            from { transform: scale(0.5); opacity: 0; }
+            to { transform: scale(1); opacity: 1; }
+        }
+        .no-score-message { 
+            font-size: 1.1em;
+            color: #757575; 
+        }
+
+        #score-message {
+            font-size: 1.2em; 
+            line-height: 1.5; 
+            color: #D84315; 
+            font-weight: bold;
+            margin-bottom: 15px; /* ボタンとの間隔 */
+        }
+        
+        #restart-button { 
+            background: linear-gradient(145deg, #FFB74D, #FF9800); 
+            color: white;
+            border: none;
+            padding: 12px 25px; 
+            border-radius: 25px; 
+            font-size: 1.1em; 
+            font-weight: bold;
+            cursor: pointer;
+            transition: background 0.3s, transform 0.1s, box-shadow 0.3s;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.2);
+        }
+        #restart-button:hover {
+            background: linear-gradient(145deg, #FFA726, #FB8C00);
+            transform: translateY(-2px) scale(1.02);
+            box-shadow: 0 6px 12px rgba(0,0,0,0.2); 
+        }
+        #restart-button:active {
+            transform: translateY(0px) scale(1);
+            box-shadow: 0 3px 6px rgba(0,0,0,0.15); 
+        }
+
+        /* ★★★「スタートにもどる」ボタンのスタイル ★★★ */
+        #back-to-start-button {
+            background-color: #FFFFFF;
+            color: #FF9800;
+            border: 2px solid #FFB74D;
+            padding: 10px 20px;
+            border-radius: 25px;
+            font-size: 1em;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background-color 0.2s, color 0.2s, border-color 0.2s, transform 0.1s;
+            margin-top: 10px;
+        }
+        #back-to-start-button:hover {
+            background-color: #FFF3E0;
+            border-color: #FFA726;
+            color: #FB8C00;
+            transform: translateY(-1px);
+        }
+        /* --- 結果表示画面のスタイルここまで --- */
+
+        .correct {
+            background-color: #AED581 !important;
+            color: #2E7D32 !important;
+            border: 2px solid #689F38;
+            transform: scale(1.02);
+        }
+
+        .incorrect {
+            background-color: #EF9A9A !important;
+            color: #C62828 !important;
+            border: 2px solid #E53935;
+        }
+    </style>
+</head>
+<body>
+    <div id="quiz-container">
+        <h1>
+            ミニバス クイズ！
+            <img src="https://i.imgur.com/q8mmC89.png" alt="タイトル横のバスケットボール" id="title-basketball-image">
+        </h1>
+        
+        <div id="start-screen">
+            </div>
+
+        <div id="game-content-wrapper"> 
+            <div id="question-number"></div>
+            <div id="question"></div>
+            <div class="options">
+                <button id="option1"></button>
+                <button id="option2"></button>
+                <button id="option3"></button>
+            </div>
+            <div id="feedback"></div>
+            <div id="explanation"></div>
+        </div>
+
+        <div id="score-container">
+            <p id="score"></p> 
+            <button id="restart-button">もういちど やる</button>
+            <button id="back-to-start-button">スタートにもどる</button> </div>
+        
+        <div id="controls-area">
+            <button id="next-question">つぎの問題へ</button>
+        </div>
+
+    </div>
+
+    <script>
+        const allQuizData = [
+            { question: "ドリブルでボールを運ぶ時、ボールを一度持った後、またドリブルしても良い？", options: ["良い", "ダメ", "1回だけなら良い"], answer: "ダメ", explanation: "<strong>【解説】</strong>ボールを一度持ってしまったら、パスをするかシュートをします。もう一度ドリブルすると「ダブルドリブル」という反則になるよ。" },
+            { question: "バスケットボールの試合は、1チーム何人で戦う？", options: ["5人", "6人", "11人"], answer: "5人", explanation: "<strong>【解説】</strong>コートに立ってプレーするのは、各チーム5人ずつだよ。" },
+            { question: "シュートが入ったら、普通何点もらえる？", options: ["1点", "2点", "3点"], answer: "2点", explanation: "<strong>【解説】</strong>コートの中からのシュートは、基本的に2点だよ。フリースローは1点、スリーポイントラインの外からのシュートは3点になるよ。" },
+            { question: "ボールを持ったまま3歩以上歩いてしまったら、何という反則？", options: ["ファウル", "トラベリング", "オーバータイム"], answer: "トラベリング", explanation: "<strong>【解説】</strong>ボールを持ったら2歩までしか歩けないよ。3歩以上歩くと「トラベリング」という反則になるんだ。" },
+            { question: "ミニバスケットボールのコートの線の外にボールが出ちゃったら、何て言う？", options: ["アウトオブバウンズ", "セーフ", "タッチライン"], answer: "アウトオブバウンズ", explanation: "<strong>【解説】</strong>ボールや、ボールを持っている人が線の外に出ると「アウトオブバウンズ」といって、相手チームのボールになるよ。" },
+            { question: "試合の始めに、ボールを上に投げてジャンプボールをする場所はどこ？", options: ["ゴール下", "コートの真ん中", "フリースローライン"], answer: "コートの真ん中", explanation: "<strong>【解説】</strong>試合開始のジャンプボールは、コート中央のセンターサークルで行うよ。" },
+            { question: "バスケットボールで、相手の邪魔をしないでシュートできるのはいつ？", options: ["いつでも", "フリースローの時", "試合終了間際"], answer: "フリースローの時", explanation: "<strong>【解説】</strong>ファウルを受けた後などにもらえるフリースローは、邪魔されずにシュートできるチャンスだよ。" },
+            { question: "ボールを持たずに3秒以上ゴール下のエリアにいたら反則になる？(オフェンスの時)", options: ["なる", "ならない", "5秒まで大丈夫"], answer: "なる", explanation: "<strong>【解説】</strong>オフェンス（攻めているチーム）の選手は、ゴール下の制限区域（ペイントエリア）に3秒より長くいてはいけない「3秒ルール」があるよ。" },
+            { question: "守る時（ディフェンス）相手にわざとぶつかったらどうなる？", options: ["ファウルになる", "何もならない", "ほめられる"], answer: "ファウルになる", explanation: "<strong>【解説】</strong>相手にわざとぶつかったり、押したりするとパーソナルファウルという反則になるよ。" },
+            { question: "パスをする時、両手でボールを投げても良い？", options: ["良い", "片手だけ", "足でなら良い"], answer: "良い", explanation: "<strong>【解説】</strong>パスは片手でも両手でもオーケー！胸の前から出すチェストパスや、頭の上から投げるオーバーヘッドパスなど色々あるよ。" },
+            { question: "試合中、コーチはコートの中に入って指示できる？", options: ["できる", "できない", "ボールがない時だけ"], answer: "できない", explanation: "<strong>【解説】</strong>コーチはコートの横の決められた場所（コーチングボックス）から指示を出すよ。コートの中には入れないんだ。" },
+            { question: "シュートがリングに当たって入らなかったボールを何と言う？", options: ["ナイスシュート", "リバウンドボール", "ラッキーボール"], answer: "リバウンドボール", explanation: "<strong>【解説】</strong>シュートが外れてリングやバックボードに当たって跳ね返ってきたボールをリバウンドボールと言うよ。これを取るのも大事！" },
+            { question: "ミニバスの試合時間は、全部で何分くらいが多い？", options: ["20分", "32分 (8分x4Q)", "60分"], answer: "32分 (8分x4Q)", explanation: "<strong>【解説】</strong>ミニバスでは、8分間のピリオド（クォーター）を4回行うことが多いよ（地域や大会によって違うこともある）。合計32分だね。" },
+            { question: "ドリブルをしないでボールを持って歩けるのは何歩まで？", options: ["0歩", "1歩", "2歩"], answer: "2歩", explanation: "<strong>【解説】</strong>ボールを持ったら、ドリブルをしないで進めるのは2歩までだよ。3歩以上進むとトラベリングになるんだ。" },
+            { question: "チームのキャプテンがやることは何？", options: ["シュートを全部打つ", "チームをまとめる", "相手チームとけんかする"], answer: "チームをまとめる", explanation: "<strong>【解説】</strong>キャプテンはチームのまとめ役で、試合中も声をかけたり、チームを引っぱっていく大切な役割があるよ。" },
+            { question: "自分のチームのゴールはどっち？", options: ["攻めている方向のゴール", "守っている方向のゴール", "どっちでも良い"], answer: "攻めている方向のゴール", explanation: "<strong>【解説】</strong>自分のチームが得点を入れるゴールは、攻めている方向にあるゴールだよ。間違えないようにしよう！" },
+            { question: "ボールを運んでいる時、相手にボールをカットされたらどうなる？", options: ["自分のファウル", "相手ボールになる", "もう一度自分のボール"], answer: "相手ボールになる", explanation: "<strong>【解説】</strong>相手にボールを奪われたら（スティールされたら）、攻守交替で相手チームのボールになるよ。" },
+            { question: "フリースローは何点入る？", options: ["1点", "2点", "3点"], answer: "1点", explanation: "<strong>【解説】</strong>フリースローは1本決まると1点もらえるよ。" },
+            { question: "審判の笛が鳴ったらどうする？", options: ["プレーを続ける", "プレーを止める", "笛を吹き返す"], answer: "プレーを止める", explanation: "<strong>【解説】</strong>審判の笛は、ファウルやバイオレーション（反則）、タイムアウトなど何かあった合図。笛が鳴ったらすぐにプレーを止めよう。" },
+            { question: "疲れたからって試合中に座り込んでも良い？", options: ["良いよ", "ダメだよ", "コーチに聞く"], answer: "ダメだよ", explanation: "<strong>【解説】</strong>試合中はコートの中で全力を出すのが基本。疲れたら交替してもらうか、タイムアウトの時に休もう。" },
+            { question: "相手チームのシュートをジャンプして手でブロックするのは？", options: ["アリ！(ナイスプレー)", "ダメ！(ファウル)", "危ないからしない"], answer: "アリ！(ナイスプレー)", explanation: "<strong>【解説】</strong>相手のシュートを手で叩いて止めるのは「ブロックショット」といって、ナイスプレーだよ！ただし、体に触れたらファウルになることもあるから気をつけて。" },
+            { question: "バスケットボールのコートはどんな形？", options: ["丸い形", "四角い形", "三角の形"], answer: "四角い形", explanation: "<strong>【解説】</strong>バスケットボールのコートは長方形だよ。" },
+            { question: "スリーポイントラインの中から打つシュートは何点？", options: ["1点", "2点", "3点"], answer: "2点", explanation: "<strong>【解説】</strong>スリーポイントラインよりもゴールに近い場所（内側）から打ったシュートは2点だよ。" },
+            { question: "試合が終わった後、相手チームにすることは？", options: ["何もしないで帰る", "「ありがとうございました」とあいさつする", "悪口を言う"], answer: "「ありがとうございました」とあいさつする", explanation: "<strong>【解説】</strong>試合が終わったら、相手チームや審判、応援してくれた人たちに感謝の気持ちを込めてあいさつをするのがマナーだよ。スポーツマンシップだね！" },
+            { question: "ドリブルは強くついた方が良い？弱くついた方が良い？", options: ["強く", "弱く", "どっちでも良い"], answer: "強く", explanation: "<strong>【解説】</strong>ドリブルはボールが手元に早く戻ってくるように、ある程度強くつくのが基本だよ。でも、コントロールできる強さでね！" },
+            { question: "パスを出す相手の名前を呼ぶのは良いこと？", options: ["良いこと", "悪いこと", "呼ばない方が良い"], answer: "良いこと", explanation: "<strong>【解説】</strong>パスを出す相手の名前を呼ぶと、相手も準備ができるし、周りにも誰にパスを出すか伝わりやすくなるよ。コミュニケーションは大事！" },
+            { question: "シュート練習はたくさんした方が上手になる？", options: ["なる！", "あまり意味ない", "他の練習が大事"], answer: "なる！", explanation: "<strong>【解説】</strong>どんなスポーツも練習は大切！シュートもたくさん練習すればするほど、どんどん上手になるよ。頑張ろう！" },
+            { question: "試合に負けても、最後まで諦めないことは大切？", options: ["大切！", "意味ない", "すぐ諦める"], answer: "大切！", explanation: "<strong>【解説】</strong>試合の結果も大事だけど、最後まで諦めずに一生懸命プレーすることがもっと大切だよ。その経験が次に繋がるんだ。" },
+            { question: "ボールを両手で持って、そのままドリブルを始めたら反則？", options: ["反則じゃない", "反則（ダブルドリブル）", "反則（トラベリング）"], answer: "反則じゃない", explanation: "<strong>【解説】</strong>最初にドリブルをしないでボールを両手で持った状態からドリブルを始めるのはオーケー。でも、一度ドリブルをしてボールをキャッチした後、もう一度ドリブルを始めるとダブルドリブルになるよ。（※この問題は少し難しいかも！「一度ドリブルを止めた後」との違いを意識してね）" },
+            { question: "試合中に転んでしまった味方がいたら、どうする？", options: ["無視する", "手を貸して起こしてあげる", "笑う"], answer: "手を貸して起こしてあげる", explanation: "<strong>【解説】</strong>仲間が困っていたら助け合うのがチームワーク！転んだ味方がいたら、声をかけたり手を貸してあげよう。" }
+        ];
+
+        const titleBasketballImage = document.getElementById('title-basketball-image'); // ★★★ タイトル横のイラストを取得
+        const startScreen = document.getElementById('start-screen');
+        
+        const gameContentWrapper = document.getElementById('game-content-wrapper'); 
+        const questionElement = document.getElementById('question');
+        const questionNumberElement = document.getElementById('question-number');
+        const optionButtons = [
+            document.getElementById('option1'),
+            document.getElementById('option2'),
+            document.getElementById('option3')
+        ];
+        const feedbackElement = document.getElementById('feedback');
+        const explanationElement = document.getElementById('explanation');
+        
+        const controlsArea = document.getElementById('controls-area');
+        const nextButton = document.getElementById('next-question');
+        
+        const scoreContainer = document.getElementById('score-container');
+        const scoreElement = document.getElementById('score'); 
+        const restartButton = document.getElementById('restart-button');
+        const backToStartButton = document.getElementById('back-to-start-button'); // ★★★ ボタン取得
+
+        let currentQuizSet = [];
+        let currentQuestionIndex = 0;
+        let score = 0;
+        const questionsPerGame = 5;
+
+        function shuffleArray(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
+            }
+        }
+
+        function showQuizGameElements(show) {
+            const displayValue = show ? 'flex' : 'none';
+            gameContentWrapper.style.display = displayValue;
+            if (show) {
+                gameContentWrapper.style.flexDirection = 'column'; 
+                questionNumberElement.style.display = 'block';
+                questionElement.style.display = 'block';
+                document.querySelector('.options').style.display = 'block';
+                feedbackElement.style.display = 'block'; // selectAnswer後に内容が入る
+            }
+            controlsArea.style.display = show ? 'flex' : 'none'; 
+        }
+
+        function initializeQuizScreen() {
+            startScreen.innerHTML = ''; 
+            titleBasketballImage.style.display = 'none'; // ★★★ タイトル横イラスト非表示
+
+            const startImage = document.createElement('img');
+            startImage.src = 'https://i.imgur.com/q8mmC89.png'; 
+            startImage.alt = 'バスケットボールのイラスト';
+            startImage.id = 'start-screen-image'; 
+            startScreen.appendChild(startImage);
+
+            const message = document.createElement('p');
+            message.innerHTML = 'ミニバスケットボールの<br>ルールや知識を<br>クイズで楽しく学ぼう！'; 
+            startScreen.appendChild(message);
+
+            const startButtonElement = document.createElement('button');
+            startButtonElement.id = 'start-button';
+            startButtonElement.textContent = 'クイズスタート！';
+            startScreen.appendChild(startButtonElement);
+            startButtonElement.addEventListener('click', startQuiz);
+
+            startScreen.style.display = 'flex'; 
+            showQuizGameElements(false);    
+            scoreContainer.style.display = 'none';  
+        }
+
+
+        function startQuiz() {
+            shuffleArray(allQuizData);
+            currentQuizSet = allQuizData.slice(0, questionsPerGame);
+            currentQuestionIndex = 0;
+            score = 0;
+
+            titleBasketballImage.style.display = 'inline-block'; // ★★★ タイトル横イラスト表示
+            startScreen.style.display = 'none';    
+            scoreContainer.style.display = 'none'; 
+            showQuizGameElements(true);           
+            
+            feedbackElement.textContent = ''; // クイズ開始時にクリア
+            feedbackElement.className = 'feedback';
+            explanationElement.style.display = 'none'; // クイズ開始時にクリア
+            nextButton.style.display = 'none'; 
+            
+            controlsArea.style.justifyContent = 'flex-end'; 
+
+            showQuestion();
+        }
+
+        function showQuestion() {
+            feedbackElement.textContent = '';
+            feedbackElement.className = 'feedback';
+            explanationElement.style.display = 'none';
+            explanationElement.innerHTML = '';
+            nextButton.style.display = 'none'; 
+
+            optionButtons.forEach(button => {
+                button.disabled = false;
+                button.classList.remove('correct', 'incorrect');
+                button.style.transform = '';
+            });
+
+            if (currentQuestionIndex < currentQuizSet.length) {
+                const currentQuestion = currentQuizSet[currentQuestionIndex];
+                questionNumberElement.textContent = `問題 ${currentQuestionIndex + 1} / ${currentQuizSet.length}`;
+                questionElement.textContent = currentQuestion.question;
+                currentQuestion.options.forEach((option, index) => {
+                    optionButtons[index].textContent = option;
+                });
+            } else {
+                showScore();
+            }
+        }
+
+        function selectAnswer(selectedIndex) {
+            const currentQuestion = currentQuizSet[currentQuestionIndex];
+            const selectedOption = optionButtons[selectedIndex].textContent;
+
+            optionButtons.forEach(button => button.disabled = true);
+
+            if (selectedOption === currentQuestion.answer) {
+                score++;
+                feedbackElement.textContent = "せいかい！🎉";
+                feedbackElement.className = 'feedback feedback-correct-animation';
+                optionButtons[selectedIndex].classList.add('correct');
+            } else {
+                feedbackElement.textContent = "ドンマイ！解説を読んで、次こそ正解だ！💪"; 
+                feedbackElement.className = 'feedback feedback-positive-incorrect'; 
+                optionButtons[selectedIndex].classList.add('incorrect');
+                const correctIndex = currentQuestion.options.indexOf(currentQuestion.answer);
+                if (correctIndex !== -1) {
+                    optionButtons[correctIndex].classList.add('correct'); 
+                }
+            }
+            explanationElement.innerHTML = currentQuestion.explanation;
+            explanationElement.style.display = 'block';
+            nextButton.style.display = 'block';
+        }
+
+        function showScore() {
+            titleBasketballImage.style.display = 'inline-block'; // ★★★ 結果画面でもタイトル横イラスト表示
+            showQuizGameElements(false); 
+            scoreContainer.style.display = 'flex'; 
+            
+            let scoreHTML = "";
+            let basketballIconsHTML = "";
+
+            if (score > 0) {
+                for (let i = 0; i < score; i++) {
+                    basketballIconsHTML += `<span class="basketball-icon" style="animation-delay: ${i * 0.15}s">🏀</span>`;
+                }
+            } else {
+                basketballIconsHTML = "<div class='no-score-message'>たくさん学べたね！</div>";
+            }
+
+            let positiveMessage = "";
+            if (score === currentQuizSet.length) { 
+                positiveMessage = "かんぺき！ぜんぶ わかったね！<br>バスケはかせ だ！";
+            } else if (score >= currentQuizSet.length * 0.8) { 
+                positiveMessage = `すごい！${score}問も わかったね！<br>ナイスチャレンジ！`;
+            } else if (score >= currentQuizSet.length * 0.5) { 
+                positiveMessage = `やったね！${score}問 わかったよ！<br>つぎは もっとわかるかも！`;
+            } else if (score > 0) { 
+                positiveMessage = `ナイスファイト！<br>${score}問 わかったね！すごいぞ！`;
+            } else { 
+                positiveMessage = "たくさん おぼえられたかな？<br>また あそんでね！";
+            }
+            
+            scoreHTML = `
+                <div id="score-display">${currentQuizSet.length}もんちゅう <span class="score-actual">${score}</span> もん せいかい！</div>
+                <div id="score-icons">${basketballIconsHTML}</div>
+                <div id="score-message">${positiveMessage}</div>
+            `;
+            scoreElement.innerHTML = scoreHTML; 
+        }
+
+        // startButton は initializeQuizScreen の中で動的に作られ、イベントリスナーもそこで設定
+        
+        optionButtons.forEach((button, index) => {
+            button.addEventListener('click', () => selectAnswer(index));
+        });
+
+        nextButton.addEventListener('click', () => {
+            currentQuestionIndex++;
+            showQuestion();
+        });
+        
+        restartButton.addEventListener('click', startQuiz); 
+        backToStartButton.addEventListener('click', initializeQuizScreen); // ★★★ イベントリスナー追加
+
+        initializeQuizScreen();
+
+    </script>
+</body>
+</html>
+<!-- partial -->
+  
+</body>
+</html>
