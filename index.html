@@ -407,7 +407,12 @@
             { question: "パスをする時、両手でボールを投げても良い？", options: ["良い", "片手だけ", "足でなら良い"], answer: "良い", explanation: "<strong>【解説】</strong>パスは片手でも両手でもオーケー！胸の前から出すチェストパスや、頭の上から投げるオーバーヘッドパスなど色々あるよ。" },
             { question: "試合中、コーチはコートの中に入って指示できる？", options: ["できる", "できない", "ボールがない時だけ"], answer: "できない", explanation: "<strong>【解説】</strong>コーチはコートの横の決められた場所（コーチングボックス）から指示を出すよ。コートの中には入れないんだ。" },
             { question: "シュートがリングに当たって入らなかったボールを何と言う？", options: ["ナイスシュート", "リバウンドボール", "ラッキーボール"], answer: "リバウンドボール", explanation: "<strong>【解説】</strong>シュートが外れてリングやバックボードに当たって跳ね返ってきたボールをリバウンドボールと言うよ。これを取るのも大事！" },
-            { question: "ミニバスの試合時間は、全部で何分くらいが多い？", options: ["20分", "32分 (8分x4Q)", "60分"], answer: "32分 (8分x4Q)", explanation: "<strong>【解説】</strong>ミニバスでは、8分間のピリオド（クォーター）を4回行うことが多いよ（地域や大会によって違うこともある）。合計32分だね。" },
+            { 
+                question: "ミニバスの試合時間は、1つのピリオド（クォーター）が何分で、それを何回行うことが多いかな？",
+                options: ["8分を2回", "6分を4回", "5分を4回"],
+                answer: "6分を4回",
+                explanation: "<strong>【解説】</strong>ミニバスの試合は、多くの場合、6分間のピリオド（クォーター）を4回行うよ（合計24分だね！）。でも、大会や地域によってルールが違うこともあるから、自分のチームのルールを確認するのも大切だよ。"
+            },
             { question: "ドリブルをしないでボールを持って歩けるのは何歩まで？", options: ["0歩", "1歩", "2歩"], answer: "2歩", explanation: "<strong>【解説】</strong>ボールを持ったら、ドリブルをしないで進めるのは2歩までだよ。3歩以上進むとトラベリングになるんだ。" },
             { question: "チームのキャプテンがやることは何？", options: ["シュートを全部打つ", "チームをまとめる", "相手チームとけんかする"], answer: "チームをまとめる", explanation: "<strong>【解説】</strong>キャプテンはチームのまとめ役で、試合中も声をかけたり、チームを引っぱっていく大切な役割があるよ。" },
             { question: "自分のチームのゴールはどっち？", options: ["攻めている方向のゴール", "守っている方向のゴール", "どっちでも良い"], answer: "攻めている方向のゴール", explanation: "<strong>【解説】</strong>自分のチームが得点を入れるゴールは、攻めている方向にあるゴールだよ。間違えないようにしよう！" },
@@ -526,7 +531,9 @@
             feedbackElement.className = 'feedback';
             explanationElement.style.display = 'none';
             explanationElement.innerHTML = '';
+            nextButton.textContent = "つぎの問題へ"; // デフォルトに戻す
             nextButton.style.display = 'none'; 
+
 
             optionButtons.forEach(button => {
                 button.disabled = false;
@@ -558,7 +565,6 @@
                 feedbackElement.className = 'feedback feedback-correct-animation';
                 optionButtons[selectedIndex].classList.add('correct');
             } else {
-                // ★★★ 不正解時のメッセージを短縮 ★★★
                 feedbackElement.textContent = "おしい！解説を読んでみよう！✨"; 
                 feedbackElement.className = 'feedback feedback-positive-incorrect'; 
                 optionButtons[selectedIndex].classList.add('incorrect');
@@ -569,6 +575,12 @@
             }
             explanationElement.innerHTML = currentQuestion.explanation;
             explanationElement.style.display = 'block';
+            
+            if (currentQuestionIndex === currentQuizSet.length - 1) { 
+                nextButton.textContent = "結果を見る🏀"; // 絵文字変更
+            } else {
+                nextButton.textContent = "つぎの問題へ";
+            }
             nextButton.style.display = 'block';
         }
 
