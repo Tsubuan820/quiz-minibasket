@@ -37,7 +37,7 @@
             width: 100%;
             max-width: 320px; 
             margin: 0 auto; 
-            min-height: 500px; 
+            min-height: 540px; 
             display: flex; 
             flex-direction: column; 
         }
@@ -267,23 +267,28 @@
         }
 
         #score-icons {
-            font-size: 2.3em; 
+            display: grid;
+            grid-template-columns: repeat(5, auto); /* 1行に最大5列 */
+            justify-content: center; /* グリッドトラック全体をコンテナ内で中央揃え */
+            align-items: center; /* アイテムの垂直位置を中央に */
+            justify-items: center; /* 各アイコンをそれぞれのセル内で水平方向に中央揃え */
+            gap: 5px; /* アイコン間の隙間 */
+            font-size: 1.8em; 
             margin-top: 8px;  
             margin-bottom: 12px; 
-            line-height: 1.3; 
-            min-height: 40px; 
+            width: 100%; /* 親要素の幅いっぱいに広げる */
+            min-height: calc(1.8em * 2 + 5px * 1); /* 2行分の高さを目安に確保 */
         }
         .basketball-icon {
-            margin: 0 3px; 
-            display: inline-block;
+            margin: 0; 
+            display: flex; /* アイコン(文字)を中央揃えにしやすくする */
+            justify-content: center;
+            align-items: center;
+            line-height: 1; 
             animation: iconPopIn 0.3s ease-out forwards;
             opacity: 0;
         }
-        .basketball-icon:nth-child(1) { animation-delay: 0.2s; }
-        .basketball-icon:nth-child(2) { animation-delay: 0.4s; }
-        .basketball-icon:nth-child(3) { animation-delay: 0.6s; }
-        .basketball-icon:nth-child(4) { animation-delay: 0.8s; }
-        .basketball-icon:nth-child(5) { animation-delay: 1.0s; }
+        /* アニメーション遅延はJS側でインラインスタイルで設定 */
 
         @keyframes iconPopIn {
             from { transform: scale(0.5); opacity: 0; }
@@ -394,6 +399,7 @@
     </div>
 
     <script>
+        // JavaScript部分は前回から変更ありません
         const allQuizData = [
             { question: "ドリブルでボールを運ぶ時、ボールを一度持った後、またドリブルしても良い？", options: ["良い", "ダメ", "1回だけなら良い"], answer: "ダメ", explanation: "<strong>【解説】</strong>ボールを一度持ってしまったら、パスをするかシュートをします。もう一度ドリブルすると「ダブルドリブル」という反則になるよ。" },
             { question: "バスケットボールの試合は、1チーム何人で戦う？", options: ["5人", "6人", "11人"], answer: "5人", explanation: "<strong>【解説】</strong>コートに立ってプレーするのは、各チーム5人ずつだよ。" },
@@ -457,7 +463,7 @@
         let currentQuizSet = [];
         let currentQuestionIndex = 0;
         let score = 0;
-        const questionsPerGame = 5;
+        const questionsPerGame = 10; 
 
         function shuffleArray(array) {
             for (let i = array.length - 1; i > 0; i--) {
@@ -531,7 +537,7 @@
             feedbackElement.className = 'feedback';
             explanationElement.style.display = 'none';
             explanationElement.innerHTML = '';
-            nextButton.textContent = "つぎの問題へ"; // デフォルトに戻す
+            nextButton.textContent = "つぎの問題へ"; 
             nextButton.style.display = 'none'; 
 
 
@@ -577,7 +583,7 @@
             explanationElement.style.display = 'block';
             
             if (currentQuestionIndex === currentQuizSet.length - 1) { 
-                nextButton.textContent = "結果を見る🏀"; // 絵文字変更
+                nextButton.textContent = "結果を見る🏀"; 
             } else {
                 nextButton.textContent = "つぎの問題へ";
             }
@@ -594,7 +600,7 @@
 
             if (score > 0) {
                 for (let i = 0; i < score; i++) {
-                    basketballIconsHTML += `<span class="basketball-icon" style="animation-delay: ${i * 0.15}s">🏀</span>`;
+                    basketballIconsHTML += `<span class="basketball-icon" style="animation-delay: ${i * 0.1}s">🏀</span>`;
                 }
             } else {
                 basketballIconsHTML = "<div class='no-score-message'>たくさん学べたね！</div>";
